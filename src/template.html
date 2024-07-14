@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="home-choices">
+        <div class="hc-item hc-h3">
+          <h4>GENERACION DE BOLETAS: COAB</h4>
+        </div>
+        <div class="hc-item">
+          <h4>Para generar boletas en formato PDF:</h4>
+          <button id="generatePdfBtn">Generar PDF</button>
+        </div>
+        <div class="hc-item">
+          <h5>Para generar boletas en formato XML y enviar al SII:</h5>
+          <button id="generateXmlBtn">Generar XML</button>
+        </div>
+      </div>
+
+      <div class="xml-choices hidden">
+        <div class="xmlc-item">
+          <button id="xmlReturnToMainMenuBtn" class="back-btn"><</button>
+        </div>        
+        <div class="xmlc-item xmlc-token">
+          <button id="getTokenBtn" class="large-btn">Get Token</button>
+          <output id="tokenOutput" class="large-btn"></output>
+          <button id="copyToClipboardBtn">
+            <span style="font-size: 1em; position: relative; top: .25em; left: .25em">📄
+              <span style="position: absolute; top: -.50em; left: -.250em">✂️
+              </span>
+            </span>
+          </button>
+        </div>
+        <div class="xmlc-item xmlc-excel">
+          <input id="xmlFileInput" type="file" accept=".xlsx, .xls" class="hidden"></input>
+          <button id="xmlFileInputBtn" class="large-btn">Select Excel File</button>
+          <select id="xmlSheetList" class="large-btn hidden"></select>
+          <button id="xmlConfirmFileBtn" class="large-btn  hidden">Confirm File</button>
+        </div>
+        <div class="xmlc-item xmlc-main-functions">
+          <button id="clearOldFilesBtn" class="large-btn">Clear Old Files</button>
+          <button id="generateDteXmlsBtn" class="large-btn">Generate DTE's</button>
+          <button id="generateSobreBtn" class="large-btn">Generate Sobre</button>
+          <button id="generateRcofBtn" class="large-btn">Generate RCOF</button>
+          <button id="generateBarcodesBtn" class="large-btn">Generate Barcodes</button>
+        </div>
+        <div class="xmlc-item log-output">
+          <textarea id="logOutput" class="large-btn" readonly></textarea>
+        </div>
+        <div class="xmlc-item">
+          <button id="downloadSobreBtn" class="large-btn">Download</button>
+        </div>
+        </div>
+
+      <div class="pdf-choices hidden">
+        <div class="pdfc-item">
+          <button id="pdfReturnToMainMenuBtn" class="back-btn"><</button>
+          <form  class="column">
+            <label for="datePicker">Emision:</label>
+            <input type="date" id="fechaEmision" name="datePicker">
+          </form>
+          <form  class="column">
+            <label for="datePicker">Vencimiento:</label>
+            <input type="date" id="fechaVencimiento" name="datePicker">
+          </form>
+          <form  class="column">
+            <label for="datePicker">Lectura Anterior:</label>
+            <input type="date" id="fechaLecturaAnterior" name="datePicker">
+          </form>
+          <form  class="column">
+            <label for="datePicker">Lectura Actual:</label>
+            <input type="date" id="fechaLecturaActual" name="datePicker">
+          </form>
+          <form  class="column">
+            <label for="datePicker">Proxima Lectura:</label>
+            <input type="date" id="fechaProximaLectura" name="datePicker">
+          </form>
+        </div>        
+     
+        <div class="pdfc-item pdfc-main-functions">
+          <input id="fileInput" type="file" accept=".xlsx, .xls" class="hidden"></input>
+          <button id="fileInputBtn" class="large-btn">Select Excel File</button>
+          <select id="sheetList" class="large-btn"></select>
+          <button id="processDataBtn" class="large-btn">Read Sheet</button>
+          <button id="generateBarCodesBtn" class="large-btn">Generate Bar Codes</button>
+          <button id="generateBoletasBtn" class="large-btn">Generate Boletas</button>
+        </div>
+        <div>
+          <iframe id="pdfIframe"></iframe>
+        </div>
+      </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
