@@ -2,10 +2,13 @@
 
 function addContentToBox(outputBox, newContent) {
   const box = document.getElementById(outputBox);
+  // Convert newContent to an array if it's not already one
+  const contentArray = Array.isArray(newContent) ? newContent : [newContent];
+
   if (box.tagName === 'TEXTAREA' || box.tagName === 'INPUT') {
-    newContent.forEach(line => (box.value += `${line}\n`));
+    contentArray.forEach(line => (box.value += `${line}\n`));
   } else {
-    newContent.forEach(line => (box.textContent += `${line}\n`));
+    contentArray.forEach(line => (box.textContent += `${line}\n`));
   }
   box.value += `------------------------------------------------\n`;
   box.scrollTop = box.scrollHeight;
@@ -54,4 +57,18 @@ function getProximaLecturaDate() {
   return getFormattedDate(issueDate);
 }
 
-export default { addContentToBox, getExpiryDate, getIssueDate, getLecturaAnteriorDate, getLecturaActualDate, getProximaLecturaDate };
+function getFechaFirma() {
+  const issueDate = new Date();
+  if (issueDate.getDate() >= 10 && issueDate.getDate() <= 20) issueDate.setDate(9);
+  return getFormattedDate(issueDate);
+}
+
+export default {
+  addContentToBox,
+  getExpiryDate,
+  getIssueDate,
+  getLecturaAnteriorDate,
+  getLecturaActualDate,
+  getProximaLecturaDate,
+  getFechaFirma,
+};

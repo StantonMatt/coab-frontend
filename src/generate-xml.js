@@ -3,10 +3,12 @@
 import util from './util.js';
 import buttons from './elements.js';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 
 const config = {
   headers: {
     Accept: 'application/json',
+    'Content-Type': 'multipart/form-data',
   },
 };
 
@@ -21,16 +23,20 @@ document.addEventListener('DOMContentLoaded', function () {
     xmlFileInputBtn,
     xmlSheetList,
     xmlConfirmFileBtn,
+    fechaFirma,
     clearOldFilesBtn,
     generateDteXmlsBtn,
     generateSobreBtn,
     generateRcofBtn,
-    generateBarcodesBtn,
     downloadSobreBtn,
   } = buttons.getGenerateXmlElements();
 
   const homeChoices = document.querySelector('.home-choices');
   const xmlChoices = document.querySelector('.xml-choices');
+
+  window.onload = function () {
+    fechaFirma.value = util.getFechaFirma();
+  };
 
   xmlReturnToMainMenuBtn.addEventListener('click', () => {
     homeChoices.classList.toggle('hidden');
@@ -46,17 +52,52 @@ document.addEventListener('DOMContentLoaded', function () {
     xmlFileInput.click();
   });
 
-  xmlFileInput.addEventListener('change', () => {
-    xmlSheetList.classList.toggle('hidden');
-    xmlConfirmFileBtn.classList.toggle('hidden');
-  });
-  xmlFileInput.addEventListener('cancel', () => {});
+  xmlFileInput.addEventListener('change', event => {
+    const file = event.target.files[0];
+    if (file) {
+      // Read the Excel file to get sheet names
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
 
-  xmlConfirmFileBtn.addEventListener('click', () => {
+        // Clear previous options
+        xmlSheetList.innerHTML = '';
+
+        // Add sheet names as options
+        workbook.SheetNames.forEach(sheetName => {
+          const option = document.createElement('option');
+          option.value = sheetName;
+          option.textContent = sheetName;
+          xmlSheetList.appendChild(option);
+        });
+
+        xmlSheetList.classList.remove('hidden');
+        xmlConfirmFileBtn.classList.remove('hidden');
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  });
+
+  xmlConfirmFileBtn.addEventListener('click', async () => {
     try {
-      // Upload Excel File to backend
+      const file = xmlFileInput.files[0];
+      const selectedSheet = xmlSheetList.value;
+
+      if (!file || !selectedSheet) {
+        throw new Error('Please select a file and a sheet.');
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('sheet', selectedSheet);
+
+      const response = await axios.post('http://127.0.0.1:5000/api/upload-excel', formData, config);
+      const data = response.data;
+      util.addContentToBox('logOutput', data.message || 'File processed successfully');
     } catch (error) {
-      console.log(`ERROR: Failed to upload Excel file: ${error}`);
+      console.error(`ERROR: Failed to upload Excel file: ${error}`);
+      util.addContentToBox('logOutput', `Failed to upload Excel file: ${error.message}`);
     }
   });
 
@@ -111,32 +152,49 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  generateBarcodesBtn.addEventListener('click', async () => {
-    try {
-      const logStartBarcodeGen = 'Creating barcodes, this may take a while...';
-      util.addContentToBox('logOutput', [logStartBarcodeGen]);
-      const response = await axios.get('http://127.0.0.1:5000/api/generate-barcodes', config);
-      const data = response.data;
-      util.addContentToBox('logOutput', [data]);
-    } catch (error) {
-      console.log(`ERROR: Failed to generate Bar Codes: ${error}`);
-    }
-  });
+  // generateBarcodesBtn.addEventListener('click', async () => {
+  //   try {
+  //     const logStartBarcodeGen = 'Creating barcodes, this may take a while...';
+  //     util.addContentToBox('logOutput', [logStartBarcodeGen]);
+  //     const response = await axios.get('http://127.0.0.1:5000/api/generate-barcodes', config);
+  //     const data = response.data;
+  //     util.addContentToBox('logOutput', [data]);
+  //   } catch (error) {
+  //     console.log(`ERROR: Failed to generate Bar Codes: ${error}`);
+  //   }
+  // });
 
   downloadSobreBtn.addEventListener('click', async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/api/download-sobre', { responseType: 'blob' });
+      const response = await axios.get('http://127.0.0.1:5000/api/download-sobre', {
+        responseType: 'blob',
+        headers: { Accept: 'application/zip, application/xml' },
+      });
 
-      const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+      const data = response.data;
+
+      const contentType = response.headers['content-type'];
+      let filename = 'sobre_COAB.xml';
+      let extension = '.xml';
+
+      if (contentType === 'application/zip') {
+        filename = 'sobre_COAB.zip';
+        extension = '.zip';
+      }
+
+      const blob = new Blob([response.data], { type: contentType });
+      const fileURL = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = fileURL;
-      link.setAttribute('download', 'sobre_COAB.xml'); // Assuming PDF, adjust the extension as necessary
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
-      link.click(); // Corrected this line
+      link.click();
 
       // Clean up
       document.body.removeChild(link);
       window.URL.revokeObjectURL(fileURL);
+
+      util.addContentToBox('logOutput', data.message || `File downloaded: ${filename}`);
     } catch (error) {
       console.error(`ERROR: Failed to download file: ${error}`);
     }

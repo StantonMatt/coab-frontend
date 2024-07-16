@@ -23,7 +23,9 @@ body {
   min-width: 800px;
 }
 
-.pdfc-item {
+.pdfc-item,
+.xmlc-item {
+  justify-content: space-between;
   font-size: 14px;
   font-weight: bold;
   display: flex;
@@ -69,10 +71,6 @@ body {
   text-align: start;
 }
 
-.xmlc-item {
-  font-size: 30px;
-}
-
 .back-btn,
 .xmlc-main-functions,
 .xmlc-token,
@@ -87,8 +85,15 @@ body {
   height: 100%; /* Takes full height of the grid row */
 }
 
-.large-btn {
+.large-btn,
+.fecha-firma {
   width: 160px;
+}
+
+.fecha-firma {
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 }
 
 #tokenOutput {
@@ -120,7 +125,7 @@ body {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 button,
@@ -132,6 +137,11 @@ select {
   border-radius: 5px;
   margin: 5px;
   cursor: pointer;
+
+  option {
+    background-color: #272829;
+    color: $button-text-color;
+  }
 
   &:hover {
     background: $button-hover-color;

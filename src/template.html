@@ -36,23 +36,27 @@
           </button>
         </div>
         <div class="xmlc-item xmlc-excel">
-          <input id="xmlFileInput" type="file" accept=".xlsx, .xls" class="hidden"></input>
-          <button id="xmlFileInputBtn" class="large-btn">Select Excel File</button>
-          <select id="xmlSheetList" class="large-btn hidden"></select>
-          <button id="xmlConfirmFileBtn" class="large-btn  hidden">Confirm File</button>
+            <input id="xmlFileInput" type="file" accept=".xlsx, .xls" class="hidden">
+            <button id="xmlFileInputBtn" class="large-btn">Select Excel File</button>
+            <select id="xmlSheetList" class="large-btn hidden"></select>
+            <button id="xmlConfirmFileBtn" class="large-btn hidden">Confirm File</button>
+            <form class="fecha-firma">
+              <label for="datePicker">Fecha Firma:</label>
+              <input type="date" id="fechaFirma" name="datePicker">
+            </form>
+
         </div>
         <div class="xmlc-item xmlc-main-functions">
-          <button id="clearOldFilesBtn" class="large-btn">Clear Old Files</button>
+          <button id="clearOldFilesBtn" class="large-btn">Clear DTE/Sobre Files</button>
           <button id="generateDteXmlsBtn" class="large-btn">Generate DTE's</button>
           <button id="generateSobreBtn" class="large-btn">Generate Sobre</button>
           <button id="generateRcofBtn" class="large-btn">Generate RCOF</button>
-          <button id="generateBarcodesBtn" class="large-btn">Generate Barcodes</button>
         </div>
         <div class="xmlc-item log-output">
           <textarea id="logOutput" class="large-btn" readonly></textarea>
         </div>
         <div class="xmlc-item">
-          <button id="downloadSobreBtn" class="large-btn">Download</button>
+          <button id="downloadSobreBtn" class="large-btn">Download Sobres</button>
         </div>
         </div>
 

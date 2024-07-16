@@ -17,6 +17,7 @@ const getGenerateXmlElements = () => {
     xmlFileInputBtn: document.getElementById('xmlFileInputBtn'),
     xmlSheetList: document.getElementById('xmlSheetList'),
     xmlConfirmFileBtn: document.getElementById('xmlConfirmFileBtn'),
+    fechaFirma: document.getElementById('fechaFirma'),
     clearOldFilesBtn: document.getElementById('clearOldFilesBtn'),
     generateDteXmlsBtn: document.getElementById('generateDteXmlsBtn'),
     generateSobreBtn: document.getElementById('generateSobreBtn'),
