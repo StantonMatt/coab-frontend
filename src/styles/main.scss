@@ -25,7 +25,6 @@ body {
 
 .pdfc-item,
 .xmlc-item {
-  justify-content: space-between;
   font-size: 14px;
   font-weight: bold;
   display: flex;
@@ -72,9 +71,11 @@ body {
 }
 
 .back-btn,
+.xmlc-dates,
 .xmlc-main-functions,
 .xmlc-token,
-.log-output {
+.xmlc-log-output,
+.xmlc-excel {
   grid-column-start: 1;
   grid-column-end: 3;
 }
@@ -85,15 +86,25 @@ body {
   height: 100%; /* Takes full height of the grid row */
 }
 
-.large-btn,
-.fecha-firma {
+.large-btn {
   width: 160px;
 }
 
-.fecha-firma {
-  justify-content: center;
+.fecha {
+  margin: 0 5px;
+  width: 160px;
   display: flex;
   flex-direction: column;
+  &:hover {
+    color: $button-hover-color;
+  }
+}
+
+.fecha-checkbox {
+  font-size: 16px;
+  align-items: flex-end;
+  display: flex;
+  flex-direction: row;
 }
 
 #tokenOutput {
@@ -135,11 +146,11 @@ select {
   border: none;
   padding: 10px;
   border-radius: 5px;
-  margin: 5px;
+  margin: 0 5px;
   cursor: pointer;
 
   option {
-    background-color: #272829;
+    background: #272829;
     color: $button-text-color;
   }
 

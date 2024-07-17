@@ -23,7 +23,10 @@ document.addEventListener('DOMContentLoaded', function () {
     xmlFileInputBtn,
     xmlSheetList,
     xmlConfirmFileBtn,
-    fechaFirma,
+    xmlFechaFirma,
+    xmlFechaEmision,
+    xmlFechaVencimiento,
+    xmlLinkDatesCheckbox,
     clearOldFilesBtn,
     generateDteXmlsBtn,
     generateSobreBtn,
@@ -35,8 +38,49 @@ document.addEventListener('DOMContentLoaded', function () {
   const xmlChoices = document.querySelector('.xml-choices');
 
   window.onload = function () {
-    fechaFirma.value = util.getFechaFirma();
+    xmlLinkDatesCheckbox.checked = true;
+    xmlFechaFirma.value = util.getFechaFirma();
+    xmlFechaEmision.value = util.getFechaEmision();
+    xmlFechaVencimiento.value = util.getFechaVencimiento();
   };
+
+  function updateLinkedDates(sourceDate) {
+    if (xmlLinkDatesCheckbox.checked) {
+      const date = new Date(sourceDate.value);
+
+      // Set Fecha Emision to the same date as Fecha Firma
+      xmlFechaEmision.value = sourceDate.value;
+
+      // Set Fecha Vencimiento to the last day of the next month
+      date.setMonth(date.getMonth() + 1);
+      date.setDate(0); // This sets it to the last day of the month
+      xmlFechaVencimiento.value = date.toISOString().split('T')[0];
+    }
+  }
+
+  xmlFechaFirma.addEventListener('change', function () {
+    updateLinkedDates(this);
+  });
+
+  xmlFechaEmision.addEventListener('change', function () {
+    if (xmlLinkDatesCheckbox.checked) {
+      xmlFechaFirma.value = this.value;
+      updateLinkedDates(this);
+    }
+  });
+
+  xmlFechaVencimiento.addEventListener('change', function () {
+    if (xmlLinkDatesCheckbox.checked) {
+      // If Fecha Vencimiento is changed, we'll set Fecha Firma and Fecha Emision
+      // to the first day of the previous month
+      const date = new Date(this.value);
+      date.setDate(1);
+      date.setMonth(date.getMonth() - 1);
+      const newDate = date.toISOString().split('T')[0];
+      xmlFechaFirma.value = newDate;
+      xmlFechaEmision.value = newDate;
+    }
+  });
 
   xmlReturnToMainMenuBtn.addEventListener('click', () => {
     homeChoices.classList.toggle('hidden');
@@ -91,6 +135,9 @@ document.addEventListener('DOMContentLoaded', function () {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('sheet', selectedSheet);
+      formData.append('fechaFirma', xmlFechaFirma.value);
+      formData.append('fechaEmision', xmlFechaEmision.value);
+      formData.append('fechaVencimiento', xmlFechaVencimiento.value);
 
       const response = await axios.post('http://127.0.0.1:5000/api/upload-excel', formData, config);
       const data = response.data;

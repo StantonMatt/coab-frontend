@@ -63,6 +63,20 @@ function getFechaFirma() {
   return getFormattedDate(issueDate);
 }
 
+function getFechaEmision() {
+  const issueDate = new Date();
+  if (issueDate.getDate() > 20) issueDate.setMonth(issueDate.getMonth() + 1);
+  issueDate.setDate(0);
+  return getFormattedDate(issueDate);
+}
+
+function getFechaVencimiento() {
+  const expiryDate = new Date();
+  if (expiryDate.getDate() > 20) expiryDate.setMonth(expiryDate.getMonth() + 1);
+  expiryDate.setDate(20);
+  return getFormattedDate(expiryDate);
+}
+
 export default {
   addContentToBox,
   getExpiryDate,
@@ -71,4 +85,6 @@ export default {
   getLecturaActualDate,
   getProximaLecturaDate,
   getFechaFirma,
+  getFechaEmision,
+  getFechaVencimiento,
 };
