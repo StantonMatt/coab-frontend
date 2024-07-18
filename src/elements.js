@@ -21,6 +21,7 @@ const getGenerateXmlElements = () => {
     xmlFechaEmision: document.getElementById('xmlFechaEmision'),
     xmlFechaVencimiento: document.getElementById('xmlFechaVencimiento'),
     xmlLinkDatesCheckbox: document.getElementById('xmlLinkDatesCheckBox'),
+    xmlLinkDatesLabel: document.getElementById('xmlLinkDatesLabel'),
     clearOldFilesBtn: document.getElementById('clearOldFilesBtn'),
     generateDteXmlsBtn: document.getElementById('generateDteXmlsBtn'),
     generateSobreBtn: document.getElementById('generateSobreBtn'),

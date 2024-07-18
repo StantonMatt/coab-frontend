@@ -57,27 +57,28 @@ function getProximaLecturaDate() {
   return getFormattedDate(issueDate);
 }
 
-function getFechaFirma() {
-  const issueDate = new Date();
+function getFechaFirma(selectedDate) {
+  const issueDate = selectedDate;
   if (issueDate.getDate() >= 10 && issueDate.getDate() <= 20) issueDate.setDate(9);
   return getFormattedDate(issueDate);
 }
 
-function getFechaEmision() {
-  const issueDate = new Date();
+function getFechaEmision(selectedDate) {
+  const issueDate = selectedDate;
   if (issueDate.getDate() > 20) issueDate.setMonth(issueDate.getMonth() + 1);
   issueDate.setDate(0);
   return getFormattedDate(issueDate);
 }
 
-function getFechaVencimiento() {
-  const expiryDate = new Date();
+function getFechaVencimiento(selectedDate) {
+  const expiryDate = selectedDate;
   if (expiryDate.getDate() > 20) expiryDate.setMonth(expiryDate.getMonth() + 1);
   expiryDate.setDate(20);
   return getFormattedDate(expiryDate);
 }
 
 export default {
+  getFormattedDate,
   addContentToBox,
   getExpiryDate,
   getIssueDate,

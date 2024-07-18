@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     xmlFechaEmision,
     xmlFechaVencimiento,
     xmlLinkDatesCheckbox,
+    xmlLinkDatesLabel,
     clearOldFilesBtn,
     generateDteXmlsBtn,
     generateSobreBtn,
@@ -34,52 +35,114 @@ document.addEventListener('DOMContentLoaded', function () {
     downloadSobreBtn,
   } = buttons.getGenerateXmlElements();
 
+  if (!xmlFechaFirma) console.error('xmlFechaFirma not found');
+  if (!xmlFechaEmision) console.error('xmlFechaEmision not found');
+  if (!xmlFechaVencimiento) console.error('xmlFechaVencimiento not found');
+  if (!xmlLinkDatesCheckbox) console.error('linkDates checkbox not found');
+  if (!xmlLinkDatesLabel) console.error('linkDates label not found');
+
   const homeChoices = document.querySelector('.home-choices');
   const xmlChoices = document.querySelector('.xml-choices');
 
   window.onload = function () {
     xmlLinkDatesCheckbox.checked = true;
-    xmlFechaFirma.value = util.getFechaFirma();
-    xmlFechaEmision.value = util.getFechaEmision();
-    xmlFechaVencimiento.value = util.getFechaVencimiento();
+    xmlFechaFirma.value = util.getFechaFirma(new Date());
+    xmlFechaEmision.value = util.getFechaEmision(new Date());
+    xmlFechaVencimiento.value = util.getFechaVencimiento(new Date());
   };
 
-  function updateLinkedDates(sourceDate) {
-    if (xmlLinkDatesCheckbox.checked) {
-      const date = new Date(sourceDate.value);
+  // Helper function to get the last day of a month
+  function getLastDayOfMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  }
 
-      // Set Fecha Emision to the same date as Fecha Firma
-      xmlFechaEmision.value = sourceDate.value;
-
-      // Set Fecha Vencimiento to the last day of the next month
-      date.setMonth(date.getMonth() + 1);
-      date.setDate(0); // This sets it to the last day of the month
-      xmlFechaVencimiento.value = date.toISOString().split('T')[0];
-    }
+  // Helper function to adjust date to ensure it's not in the future
+  function adjustToToday(date) {
+    const today = new Date();
+    return date > today ? today : date;
   }
 
   xmlFechaFirma.addEventListener('change', function () {
-    updateLinkedDates(this);
+    if (xmlLinkDatesCheckbox.checked) {
+      let fechaFirma = adjustToToday(new Date(this.value));
+
+      let fechaEmision;
+      let fechaVencimiento;
+
+      if (fechaFirma.getDate() < 20) {
+        fechaEmision = new Date(
+          fechaFirma.getFullYear(),
+          fechaFirma.getMonth() - 1,
+          getLastDayOfMonth(fechaFirma.getFullYear(), fechaFirma.getMonth() - 1)
+        );
+        fechaVencimiento = new Date(fechaFirma.getFullYear(), fechaFirma.getMonth(), 20);
+      } else {
+        fechaEmision = new Date(
+          fechaFirma.getFullYear(),
+          fechaFirma.getMonth() - 1,
+          getLastDayOfMonth(fechaFirma.getFullYear(), fechaFirma.getMonth() - 1)
+        );
+        fechaVencimiento = new Date(fechaFirma.getFullYear(), fechaFirma.getMonth() + 1, 20);
+      }
+
+      xmlFechaVencimiento.value = util.getFormattedDate(fechaVencimiento);
+      xmlFechaEmision.value = util.getFormattedDate(fechaEmision);
+    }
   });
 
   xmlFechaEmision.addEventListener('change', function () {
     if (xmlLinkDatesCheckbox.checked) {
-      xmlFechaFirma.value = this.value;
-      updateLinkedDates(this);
+      let fechaEmision = adjustToToday(new Date(this.value));
+
+      let fechaFirma = new Date(fechaEmision);
+      let fechaVencimiento = new Date(fechaEmision);
+
+      if (fechaEmision.getDate() >= 8) {
+        fechaFirma.setMonth(fechaEmision.getMonth() + 1, 4);
+        fechaVencimiento.setMonth(fechaEmision.getMonth() + 1, 20);
+      } else {
+        fechaFirma.setDate(fechaEmision.getDate() + 2);
+        fechaVencimiento.setMonth(fechaEmision.getMonth(), 20);
+      }
+
+      fechaFirma = adjustToToday(fechaFirma);
+
+      xmlFechaVencimiento.value = util.getFormattedDate(fechaVencimiento);
+      xmlFechaFirma.value = util.getFormattedDate(fechaFirma);
     }
   });
 
   xmlFechaVencimiento.addEventListener('change', function () {
     if (xmlLinkDatesCheckbox.checked) {
-      // If Fecha Vencimiento is changed, we'll set Fecha Firma and Fecha Emision
-      // to the first day of the previous month
-      const date = new Date(this.value);
-      date.setDate(1);
-      date.setMonth(date.getMonth() - 1);
-      const newDate = date.toISOString().split('T')[0];
-      xmlFechaFirma.value = newDate;
-      xmlFechaEmision.value = newDate;
+      let fechaVencimiento = new Date(this.value);
+
+      let fechaEmision;
+      let fechaFirma;
+
+      if (fechaVencimiento.getDate() < 10) {
+        fechaEmision = new Date(
+          fechaVencimiento.getFullYear(),
+          fechaVencimiento.getMonth() - 2,
+          getLastDayOfMonth(fechaVencimiento.getFullYear(), fechaVencimiento.getMonth() - 2)
+        );
+        fechaFirma = new Date(fechaVencimiento.getFullYear(), fechaVencimiento.getMonth() - 1, 4);
+      } else {
+        fechaEmision = new Date(
+          fechaVencimiento.getFullYear(),
+          fechaVencimiento.getMonth() - 1,
+          getLastDayOfMonth(fechaVencimiento.getFullYear(), fechaVencimiento.getMonth() - 1)
+        );
+        fechaFirma = new Date(fechaVencimiento.getFullYear(), fechaVencimiento.getMonth(), 4);
+      }
+
+      xmlFechaEmision.value = util.getFormattedDate(fechaEmision);
+      xmlFechaFirma.value = util.getFormattedDate(fechaFirma);
     }
+  });
+
+  xmlLinkDatesLabel.addEventListener('click', function (e) {
+    e.preventDefault(); // Prevent default checkbox behavior
+    xmlLinkDatesCheckbox.checked = !xmlLinkDatesCheckbox.checked;
   });
 
   xmlReturnToMainMenuBtn.addEventListener('click', () => {

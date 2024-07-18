@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
+
   generateBarCodesBtn.addEventListener('click', async () => {
     dataObject = XLSX.utils.sheet_to_json(workbook.Sheets[sheetList.value]);
     const rutEmpresa = dataObject[0]['RUT Empresa'];
