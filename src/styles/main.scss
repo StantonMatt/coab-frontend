@@ -75,7 +75,9 @@ body {
 .xmlc-main-functions,
 .xmlc-token,
 .xmlc-log-output,
-.xmlc-excel {
+.xmlc-excel,
+.xmlc-inputs,
+.xmlc-inputs2 {
   grid-column-start: 1;
   grid-column-end: 3;
 }
@@ -90,7 +92,8 @@ body {
   width: 160px;
 }
 
-.fecha {
+.fecha,
+.xml-input {
   margin: 0 5px;
   width: 160px;
   display: flex;
@@ -174,9 +177,15 @@ select {
     background: #272829;
     color: $button-text-color;
   }
-
   &:hover {
-    background: $button-hover-color;
+    &:enabled {
+      background: $button-hover-color;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 }
 

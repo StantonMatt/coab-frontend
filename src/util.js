@@ -58,9 +58,9 @@ function getProximaLecturaDate() {
 }
 
 function getFechaFirma(selectedDate) {
-  const issueDate = selectedDate;
-  if (issueDate.getDate() >= 10 && issueDate.getDate() <= 20) issueDate.setDate(9);
-  return getFormattedDate(issueDate);
+  const firmaDate = selectedDate;
+  // if (firmaDate.getDate() >= 10 && firmaDate.getDate() <= 20) firmaDate.setDate(9);
+  return getFormattedDate(firmaDate);
 }
 
 function getFechaEmision(selectedDate) {
@@ -77,6 +77,28 @@ function getFechaVencimiento(selectedDate) {
   return getFormattedDate(expiryDate);
 }
 
+function getFechaDesde(selectedDate) {
+  const desdeDate = new Date(selectedDate);
+  if (desdeDate.getDate() < 10) {
+    desdeDate.setMonth(desdeDate.getMonth() - 3);
+  } else {
+    desdeDate.setMonth(desdeDate.getMonth() - 2);
+  }
+  desdeDate.setDate(25);
+  return getFormattedDate(desdeDate);
+}
+
+function getFechaHasta(selectedDate) {
+  const hastaDate = new Date(selectedDate);
+  if (hastaDate.getDate() < 10) {
+    hastaDate.setMonth(hastaDate.getMonth() - 2);
+  } else {
+    hastaDate.setMonth(hastaDate.getMonth() - 1);
+  }
+  hastaDate.setDate(24);
+  return getFormattedDate(hastaDate);
+}
+
 export default {
   getFormattedDate,
   addContentToBox,
@@ -88,4 +110,6 @@ export default {
   getFechaFirma,
   getFechaEmision,
   getFechaVencimiento,
+  getFechaDesde,
+  getFechaHasta,
 };
