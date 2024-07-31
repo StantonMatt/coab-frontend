@@ -44,28 +44,13 @@ const apiService = (() => {
         headers: { Accept: 'application/zip, application/xml' },
       }),
     uploadExcel: formData => request('/upload-excel', 'POST', formData),
+    getDropdownOptions: fieldName => request(`/get-dropdown-options/${fieldName}`),
   };
 })();
 
 // UI Manager Module
 const uiManager = (() => {
   const elements = buttons.getGenerateXmlElements();
-
-  const initializeUI = () => {
-    elements.xmlLinkDatesCheckbox.checked = true;
-    [
-      { elem: elements.xmlFechaFirma, func: util.getFechaFirma },
-      { elem: elements.xmlFechaEmision, func: util.getFechaEmision },
-      { elem: elements.xmlFechaVencimiento, func: util.getFechaVencimiento },
-      { elem: elements.xmlFechaDesde, func: util.getFechaDesde },
-      { elem: elements.xmlFechaHasta, func: util.getFechaHasta },
-    ].forEach(({ elem, func }) => {
-      elem.value = func(new Date());
-    });
-    setButtonState(elements.downloadSobreBtn, false);
-    setButtonState(elements.generateSobreBtn, false);
-    setButtonState(elements.generateDteXmlsBtn, false);
-  };
 
   const setButtonState = (button, enabled) => {
     button.disabled = !enabled;
@@ -129,9 +114,6 @@ const uiManager = (() => {
       util.addContentToBox('logOutput', `File Selected: ${file.name}`);
       processExcelFile(file);
     } else {
-      setButtonState(elements.generateDteXmlsBtn, false);
-      setButtonState(elements.generateSobreBtn, false);
-      setButtonState(elements.downloadSobreBtn, false);
       util.addContentToBox('logOutput', 'No file selected or file selection cancelled');
       resetFileSelection();
     }
@@ -181,7 +163,7 @@ const uiManager = (() => {
       formData.append('fechaHasta', elements.xmlFechaHasta.value);
 
       const response = await apiService.uploadExcel(formData);
-      util.addContentToBox('logOutput', response.message || `${selectedSheet} sheet processed successfully`);
+      util.addContentToBox('logOutput', response.data.message || `${selectedSheet} sheet processed successfully`);
       setButtonState(elements.xmlConfirmFileBtn, false);
       setButtonState(elements.xmlSheetList, false);
       setButtonState(elements.generateDteXmlsBtn, true);
@@ -221,8 +203,6 @@ const uiManager = (() => {
   };
 
   const clearOldFiles = async () => {
-    setButtonState(elements.generateSobreBtn, false);
-    setButtonState(elements.downloadSobreBtn, false);
     await handleApiRequest(apiService.deleteFiles, 'Failed to delete files');
   };
 
@@ -252,7 +232,7 @@ const uiManager = (() => {
     if (data && typeof data === 'object') {
       if (data.success) {
         setButtonState(elements.downloadSobreBtn, true);
-        util.addContentToBox('logOutput', 'Download button is now active.');
+        util.addContentToBox('logOutput', 'Sobre generated successfully. Download button is now active.');
       } else {
         setButtonState(elements.downloadSobreBtn, false);
         util.addContentToBox('logOutput', 'Failed to generate sobre. Download button remains inactive.');
@@ -294,13 +274,72 @@ const uiManager = (() => {
     }
   };
 
+  const populateDropdown = async (selectElementId, fieldName) => {
+    const selectElement = document.getElementById(selectElementId);
+    if (!selectElement) {
+      console.error(`Element with id '${selectElementId}' not found in the DOM`);
+      util.addContentToBox('logOutput', `Failed to load options for ${fieldName}: Element not found`);
+      return;
+    }
+
+    try {
+      const response = await apiService.getDropdownOptions(fieldName);
+      const options = response.data;
+      selectElement.innerHTML = '';
+      options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option;
+        optionElement.textContent = option;
+        selectElement.appendChild(optionElement);
+      });
+    } catch (error) {
+      console.error(`Error populating dropdown for ${fieldName}:`, error);
+      util.addContentToBox('logOutput', `Failed to load options for ${fieldName}: ${error.message}`);
+    }
+  };
+
+  const initializeDropdowns = () => {
+    const dropdowns = [
+      { id: 'xmlRznSocEmisor', field: 'xmlRznSocEmisor' },
+      { id: 'xmlGiroEmisor', field: 'xmlGiroEmisor' },
+      { id: 'xmlRutEmisor', field: 'xmlRutEmisor' },
+      { id: 'xmlRutEnvia', field: 'xmlRutEnvia' },
+      { id: 'xmlRutReceptor', field: 'xmlRutReceptor' },
+      { id: 'xmlFchResol', field: 'xmlFchResol' },
+      { id: 'xmlNroResol', field: 'xmlNroResol' },
+      { id: 'xmlTipoDte', field: 'xmlTipoDte' },
+      { id: 'xmlIndServicio', field: 'xmlIndServicio' },
+    ];
+
+    dropdowns.forEach(dropdown => {
+      populateDropdown(dropdown.id, dropdown.field);
+    });
+  };
+
+  const initializeUI = () => {
+    elements.xmlLinkDatesCheckbox.checked = true;
+    [
+      { elem: elements.xmlFechaFirma, func: util.getFechaFirma },
+      { elem: elements.xmlFechaEmision, func: util.getFechaEmision },
+      { elem: elements.xmlFechaVencimiento, func: util.getFechaVencimiento },
+      { elem: elements.xmlFechaDesde, func: util.getFechaDesde },
+      { elem: elements.xmlFechaHasta, func: util.getFechaHasta },
+    ].forEach(({ elem, func }) => {
+      elem.value = func(new Date());
+    });
+    setButtonState(elements.downloadSobreBtn, false);
+    setButtonState(elements.generateSobreBtn, false);
+    setButtonState(elements.generateDteXmlsBtn, false);
+
+    initializeDropdowns();
+  };
+
   const initializeEventListeners = () => {
     elements.xmlReturnToMainMenuBtn.addEventListener('click', toggleMenuVisibility);
     elements.copyToClipboardBtn.addEventListener('click', copyTokenToClipboard);
     elements.xmlFileInputBtn.addEventListener('click', triggerFileInput);
     elements.xmlFileInput.addEventListener('change', handleFileSelection);
     elements.xmlFileInput.addEventListener('click', clearFileInput);
-    elements.xmlFileInput.addEventListener('cancel', handleFileSelection);
     elements.xmlConfirmFileBtn.addEventListener('click', uploadExcelFile);
     elements.xmlLinkDatesLabel.addEventListener('click', toggleLinkedDates);
     elements.xmlFechaFirma.addEventListener('change', updateLinkedDates);
